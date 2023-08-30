@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 namespace Cronograma
 {
@@ -541,6 +542,10 @@ namespace Cronograma
 
             Console.Clear();
             MuestraDespedida();
+
+            Console.WriteLine("Pulsa intro para salir del programa");
+            Console.Write(">");
+            Console.ReadLine();
 
         }
 
