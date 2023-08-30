@@ -23,14 +23,14 @@ namespace Cronograma
 
         public static string TraduceDiaSemana(DayOfWeek diaActual, bool breve = false)
         {
-            if (diaActual == DayOfWeek.Monday) { return breve ? "L" : "Lunes"; }
-            else if (diaActual == DayOfWeek.Tuesday) { return breve ? "M" : "Martes"; }
-            else if (diaActual == DayOfWeek.Wednesday) { return breve ? "X" : "Miércoles"; }
-            else if (diaActual == DayOfWeek.Thursday) { return breve ? "J" : "Jueves"; }
-            else if (diaActual == DayOfWeek.Friday) { return breve ? "V" : "Viernes"; }
-            else if (diaActual == DayOfWeek.Saturday) { return breve ? "S" : "Sábado"; }
+            if (diaActual == DayOfWeek.Monday) { return breve ? "Lu." : "Lunes"; }
+            else if (diaActual == DayOfWeek.Tuesday) { return breve ? "Ma." : "Martes"; }
+            else if (diaActual == DayOfWeek.Wednesday) { return breve ? "Mi." : "Miércoles"; }
+            else if (diaActual == DayOfWeek.Thursday) { return breve ? "Ju." : "Jueves"; }
+            else if (diaActual == DayOfWeek.Friday) { return breve ? "Vi." : "Viernes"; }
+            else if (diaActual == DayOfWeek.Saturday) { return breve ? "Sá." : "Sábado"; }
             else // diaActual == DayOfWeek.Sunday
-            { return breve ? "D" : "Domingo"; }
+            { return breve ? "Do." : "Domingo"; }
 
         }
 

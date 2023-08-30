@@ -34,12 +34,14 @@ namespace Cronograma
         Asignatura asignatura;
 
         bool empezarUFsEnDiaNuevo;
+        bool estiloContinuo;
 
-        public Cronograma(Calendario _calendario, Asignatura _asignatura, bool _empezarUfsEnDiaNuevo)
+        public Cronograma(Calendario _calendario, Asignatura _asignatura, bool _empezarUfsEnDiaNuevo, bool _estiloContinuo)
         {
             calendario = _calendario;
             asignatura = _asignatura;
             empezarUFsEnDiaNuevo = _empezarUfsEnDiaNuevo;
+            estiloContinuo = _estiloContinuo;
         }
 
         public bool CompruebaCorrecto()
@@ -55,7 +57,6 @@ namespace Cronograma
             return correcto;
 
         }
-
 
         public void GeneraExcel(string nombreFichero)
         {
@@ -108,6 +109,10 @@ namespace Cronograma
 
             hoja.Cells[Config.filaTituloAsignatura, Config.columnaTituloAsignatura] = asignatura.ObtenNombre();
             hoja.Cells[Config.filaTituloAsignatura, Config.columnaTituloAsignatura].Font.Size = Config.tamanyoTituloAsignatura;
+            hoja.Cells[Config.filaTituloAsignatura, Config.columnaTituloAsignatura].Style.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+            hoja.Cells[Config.filaTituloAsignatura, Config.columnaTituloAsignatura].Interior.Color = Config.colorTituloAsignatura;
+            hoja.Cells[Config.filaTituloAsignatura, Config.columnaTituloAsignatura].Font.Color = Config.colorTextoTituloAsignatura;
+            hoja.Range[hoja.Cells[Config.filaTituloAsignatura, Config.columnaTituloAsignatura], hoja.Cells[Config.filaTituloAsignatura, Config.columnaTituloAsignatura + 6]].Merge();
 
             // Rellenamos los meses
 
@@ -126,6 +131,11 @@ namespace Cronograma
                 hoja.Cells[cursorFila, cursorColumna] = Utils.TraduceMes(mes) + " " + anyo;
                 hoja.Cells[cursorFila, cursorColumna].Font.Size = Config.tamanyoTituloMes;
                 hoja.Cells[cursorFila, cursorColumna].Font.Bold = true;
+                hoja.Cells[cursorFila, cursorColumna].Style.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+                hoja.Cells[cursorFila, cursorColumna].Interior.Color = Config.colorTituloMes;
+                hoja.Cells[cursorFila, cursorColumna].Font.Color = Config.colorTextoTituloMes;
+                hoja.Range[hoja.Cells[cursorFila, cursorColumna], hoja.Cells[cursorFila, cursorColumna + 6]].Merge();
+
 
                 cursorFila++;
 
@@ -134,16 +144,24 @@ namespace Cronograma
                     hoja.Cells[cursorFila, cursorColumna] = Utils.TraduceDiaSemana(Utils.IndiceADiaSemana(j), true);
                     hoja.Cells[cursorFila, cursorColumna].Interior.Color = Config.colorDiaSemana;
                     hoja.Cells[cursorFila, cursorColumna].Font.Bold = true;
-                    cursorColumna ++;
+                    hoja.Cells[cursorFila, cursorColumna].Style.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+
+
+                    cursorColumna++;
                 }
 
                 cursorFila ++;
+
+                int anteriorUF = 0;
 
                 for(DateTime dia = primerDia; dia <= ultimoDia; dia = dia.AddDays(1))
                 {
                     cursorColumna = Config.columnaInicioMeses + Utils.DiaSemanaAIndice(dia.DayOfWeek) - 1;
 
                     hoja.Cells[cursorFila, cursorColumna] = dia.Day;
+                    hoja.Cells[cursorFila, cursorColumna].Borders.LineStyle = XlLineStyle.xlContinuous;
+                    hoja.Cells[cursorFila, cursorColumna].Style.HorizontalAlignment = XlHAlign.xlHAlignCenter;
+
 
                     XlRgbColor color = XlRgbColor.rgbWhite;
                     uint colorRGB = 0;
@@ -178,7 +196,11 @@ namespace Cronograma
 
                             bool tieneUFs = false;
 
-                            if (horasUF.Count == 1)
+                            if(horasUF.Count == 0)
+                            {
+                                if(estiloContinuo && anteriorUF > 0) { color = Config.coloresUFs[anteriorUF - 1]; ponerColor = true; }
+                            }
+                            else if (horasUF.Count == 1)
                             {
                                 color = Config.coloresUFs[(horasUF[0].uf - 1) % Config.coloresUFs.Length];
                                 ponerColor = true;
@@ -195,6 +217,8 @@ namespace Cronograma
                                 ponerGradiente = true;
                             }
 
+                            if(horasUF.Count > 0) { anteriorUF =  horasUF[horasUF.Count - 1].uf; }
+
                         }
 
                     }
@@ -206,7 +230,7 @@ namespace Cronograma
                     else if(ponerGradiente)
                     {
                         hoja.Cells[cursorFila, cursorColumna].Interior.Pattern = XlPattern.xlPatternLinearGradient;
-                        hoja.Cells[cursorFila, cursorColumna].Interior.Gradient.Degree = 90;
+                        hoja.Cells[cursorFila, cursorColumna].Interior.Gradient.Degree = 0;
                         hoja.Cells[cursorFila, cursorColumna].Interior.Gradient.ColorStops.Clear();
 
                         for (int j = 0; j < coloresGradiente.Count; j ++)
@@ -216,7 +240,7 @@ namespace Cronograma
 
                     }
 
-                    if(dia.DayOfWeek == DayOfWeek.Sunday) { cursorFila++; }
+                    if (dia.DayOfWeek == DayOfWeek.Sunday) { cursorFila++; }
 
                 }
 
@@ -234,7 +258,9 @@ namespace Cronograma
                 int uf = asignatura.ObtenUFPorIndice(i);
                 hoja.Cells[cursorFila, cursorColumna] = "UF" + uf;
                 hoja.Cells[cursorFila, cursorColumna].Interior.Color = Config.coloresUFs[(uf - 1) % Config.coloresUFs.Length];
+                hoja.Cells[cursorFila, cursorColumna].Style.HorizontalAlignment = XlHAlign.xlHAlignCenter;
                 hoja.Cells[cursorFila, cursorColumna + 1] = asignatura.ObtenHorasUF(uf) + "h";
+                hoja.Cells[cursorFila, cursorColumna + 1].Borders.LineStyle = XlLineStyle.xlContinuous;
 
                 cursorFila ++;
 

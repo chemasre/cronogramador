@@ -314,10 +314,14 @@ namespace Cronograma
                         else
                         {
                             bool empezarEnDiaNuevo;
+                            bool estiloContinuo;
                             Console.WriteLine("¿Prefieres que las UFs siempre empiecen en dia nuevo?");
                             empezarEnDiaNuevo = LeeBooleano();
+                            Console.WriteLine("¿Quieres mostrar las UFs como una serie continua?");
+                            Console.WriteLine(" -> Si eliges no, se marcarán sólo los días de la semana en que hay clase de la asignatura");
+                            estiloContinuo = LeeBooleano();
 
-                            var cronograma = new Cronograma(calendario, asignatura, empezarEnDiaNuevo);
+                            var cronograma = new Cronograma(calendario, asignatura, empezarEnDiaNuevo, estiloContinuo);
 
                             bool generar = true;
 
